@@ -1,0 +1,35 @@
+name: Build Plugin on Release Tag
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Build project
+        run: ./gradlew build
+
+      - name: Upload Bukkit plugin artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: worldguard-bukkit-${{ github.ref_name }}
+          path: |
+            worldguard-bukkit/build/libs/*.jar
+          if-no-files-found: error
